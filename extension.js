@@ -28,8 +28,7 @@ ProxySwitch.prototype = {
         PanelMenu.SystemStatusButton.prototype._init.call(this, 'proxy');
 
         this.statusLabel = new St.Label({
-            text: "P",
-            style_class: "proxy-label"
+            text: "P"
         });
 
         /** destroy all previously created children, and add our statusLabel **/
@@ -56,7 +55,7 @@ ProxySwitch.prototype = {
 	{
 		name: "newproxy",
 		hint_text: "proxy-host:port",
-		track_hover: false,
+		track_hover: true,
 		can_focus: true
 	});
 	let newproxy = this.p_label.clutter_text;
@@ -127,17 +126,44 @@ ProxySwitch.prototype = {
 	this.menu.addMenuItem(this.Separator);
 
 	let p_bottomSection = new PopupMenu.PopupMenuSection('remove');
-	let removeProxy = new PopupMenu.PopupMenuItem('Remove Selected Proxy');
-	let clearProxy = new PopupMenu.PopupMenuItem('No Proxy');
-	removeProxy.connect('activate', Lang.bind(this, function()
+    let removeBox = new St.BoxLayout({
+                                         vertical: false,
+                                         style_class: 'button-box'
+                                     });
+
+	let removeProxy = new St.Button({
+                                        style_class: 'buttonStyle',
+                                        reactive: true
+                                    });
+
+	let clearProxy = new St.Button({
+                                        style_class: 'buttonStyle',
+                                        reactive: true
+                                   });
+
+    removeProxyIcon = new St.Icon({
+                                       icon_name: 'list-remove-symbolic', 
+                                       style_class: 'buttonIcon'
+                                  });
+
+    clearProxyIcon = new St.Icon({
+                                       icon_name: 'action-unavailable-symbolic', 
+                                       style_class: 'buttonIcon'
+                                 });
+
+    removeProxy.set_child(removeProxyIcon);
+    clearProxy.set_child(clearProxyIcon);
+
+    removeProxy.connect('button-press-event', Lang.bind(this, function()
 	{
 		if(this.currentProxyFlag!=-1)
 		{
 			removeSelected(this.proxy[this.currentProxyFlag], pfile);
 			this.currentProxyFlag=-1;
+            proxyMenu.close();
 		}
 	}));
-	clearProxy.connect('activate', Lang.bind(this, function()
+	clearProxy.connect('button-press-event', Lang.bind(this, function()
 	{
 		let modeNone = new Gio.Settings({schema: "org.gnome.system.proxy"});
 		modeNone.set_string('mode', 'none');
@@ -146,10 +172,13 @@ ProxySwitch.prototype = {
 			this.proxy[this.currentProxyFlag].setShowDot(false);
 			this.currentProxyFlag=-1;
 		}
+        proxyMenu.close();
 	}));
-	p_bottomSection.addMenuItem(clearProxy);
-	p_bottomSection.addMenuItem(removeProxy);
+    removeBox.add(removeProxy);
+    removeBox.add(clearProxy);
+    p_bottomSection.addActor(removeBox);
 	this.menu.addMenuItem(p_bottomSection);
+
     },
 
     _proxySwitch : function(item)

@@ -1,9 +1,29 @@
-.newproxysection {
-	padding:0 12px;
+.button-box {
+    spacing: 5px;
+    padding-right: 60px;
+    padding-left: 60px;
 }
 
-.panelButtonWidth {
-	width:40px;
+.buttonStyle {
+    border: 1px solid #8b8b8b;
+    background-gradient-direction: veritcal;
+    background-gradient-start: rgba(255, 255, 255, 0.2);
+    background-gradient-end: rgba(255, 255, 255, 0);
+    border-radius: 9px;
+    padding: 0px 10px;
+}
+
+.buttonStyle:hover {
+    background-gradient-start: rgba(255, 255, 255, 0.3);
+    background-gradient-end: rgba(255, 255, 255, 0.1);
+}
+
+.buttonIcon {
+    icon-size: 2em;
+}
+
+.newproxysection {
+	padding:0 12px;
 }
 
 /* Same style as #searchEntry on theme/gnome-shell.css */
@@ -19,7 +39,7 @@
 	selected-color: black;
 	caret-color: rgb(128, 128, 128);
 	caret-size: 1px;
-	width: 200px;
+	width: 150px;
 	transition-duration: 300;
 	box-shadow: inset 0px 2px 4px rgba(0,0,0,0.6);
 }
