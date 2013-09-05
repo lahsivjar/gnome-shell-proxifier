@@ -6,7 +6,7 @@
 
 .buttonStyle {
     border: 1px solid #8b8b8b;
-    background-gradient-direction: veritcal;
+    background-gradient-direction: vertical;
     background-gradient-start: rgba(255, 255, 255, 0.2);
     background-gradient-end: rgba(255, 255, 255, 0);
     border-radius: 9px;

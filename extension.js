@@ -15,6 +15,7 @@ function ProxySwitch(metadata)
 {
     this.file = metadata.path + "/proxy.list";
     this._init.apply(this, arguments);
+    this.pythonScript = metadata.path + "/proxySpeed.py";
 }	
 
 let meta;
@@ -37,7 +38,7 @@ ProxySwitch.prototype = {
         });
 
 	this.currentProxyFlag = -1;
-        this.actor.add_actor(this.statusLabel);
+    this.actor.add_actor(this.statusLabel);
 	this.proxy = new Array();
 
 	this._readProxy();
@@ -131,6 +132,11 @@ ProxySwitch.prototype = {
                                          style_class: 'button-box'
                                      });
 
+    let test = new St.Button({
+                                style_class: 'buttonStyle',
+                                reactive: true
+                            });
+
 	let removeProxy = new St.Button({
                                         style_class: 'buttonStyle',
                                         reactive: true
@@ -141,18 +147,32 @@ ProxySwitch.prototype = {
                                         reactive: true
                                    });
 
-    removeProxyIcon = new St.Icon({
+    let testIcon = new St.Icon({
+                                icon_name: 'edit-find-sybolic',
+                                style_class: 'buttonIcon'
+                          });
+
+    let removeProxyIcon = new St.Icon({
                                        icon_name: 'list-remove-symbolic', 
                                        style_class: 'buttonIcon'
                                   });
 
-    clearProxyIcon = new St.Icon({
+    let clearProxyIcon = new St.Icon({
                                        icon_name: 'action-unavailable-symbolic', 
                                        style_class: 'buttonIcon'
                                  });
 
+    test.set_child(testIcon);
     removeProxy.set_child(removeProxyIcon);
     clearProxy.set_child(clearProxyIcon);
+
+    test.connect('button-press-event', Lang.bind(this, function()
+    {
+        let pArg = this.pythonScript + " " + pfile;
+        Util.spawnCommandLine("python " + pArg);
+        proxyMenu.close();
+        //Next get the selected proxy and mark it
+    }));
 
     removeProxy.connect('button-press-event', Lang.bind(this, function()
 	{
@@ -174,6 +194,7 @@ ProxySwitch.prototype = {
 		}
         proxyMenu.close();
 	}));
+    removeBox.add(test);
     removeBox.add(removeProxy);
     removeBox.add(clearProxy);
     p_bottomSection.addActor(removeBox);

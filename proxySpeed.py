@@ -1,0 +1,73 @@
+import os
+import time
+import sys
+import re
+from threading import Thread as th
+from gi.repository import Gio as gio
+
+def switch_proxy(host, port, username=None, password=None):
+
+    modeManual = gio.Settings.new("org.gnome.system.proxy")
+    modeManual.set_string("mode", "manual")
+
+    http_Settings = gio.Settings.new("org.gnome.system.proxy.http")
+    https_Settings = gio.Settings.new("org.gnome.system.proxy.https")
+    
+    retValue = http_Settings.set_string("host", host)
+    retValue = retValue and http_Settings.set_int("port", port)
+    
+    retValue = retValue and https_Settings.set_string("host", host)
+    retValue = retValue and https_Settings.set_int("port", port)
+
+    if username is not None:
+        retValue = retValue and http_Settings.set_boolean("use-authentication", True)
+        retValue = retValue and http_Settings.set_string("authentication_user", username)
+        retValue = retValue and http_Settings.set_string("authentication_password", password)
+    
+    return retValue
+
+class find_proxy(th):
+    def __init__(self, host):
+        th.__init__(self)
+        self.host = host
+        self.ip = host.split(':')[0]
+        self.time = -1
+        self.status = -1
+
+    def run(self):
+        pingIp = os.popen("ping -q -c2 -w5 " + self.ip, "r")
+        while True:
+            result = pingIp.readline()
+            if not result:
+                break
+            retStatus = re.findall(find_proxy.pingStatus, result)
+            retTime = re.findall(find_proxy.pingTime, result)
+            if retStatus:
+                self.status = int(retStatus[0])
+            if retTime:
+                self.time = int(retTime[0])
+
+find_proxy.pingStatus = re.compile(r"(\d) received")
+find_proxy.pingTime = re.compile(r"time (\d*)ms")
+fastest_proxy_time = 9999
+
+proxychecked = []
+
+with open(sys.argv[1], "r+") as f_proxy:
+    hosts = f_proxy.read().splitlines()
+
+for host in hosts:
+    active = find_proxy(host)
+    proxychecked.append(active)
+    active.start()
+
+for p in proxychecked:
+    p.join()
+    if (fastest_proxy_time > p.time):
+        fastest_proxy_time = p.time
+        fastest_proxy = p.host
+
+fastest_proxy = fastest_proxy.split(':')
+success = switch_proxy(fastest_proxy[0], int(fastest_proxy[1]))
+print "Switching to " + fastest_proxy[0] + "... " + str(success)
+
