@@ -16,7 +16,7 @@ function ProxySwitch(metadata)
     this.file = metadata.path + "/proxy.list";
     this._init.apply(this, arguments);
     this.pythonScript = metadata.path + "/proxySpeed.py";
-}	
+}   
 
 let meta;
 let p_switch;
@@ -37,96 +37,96 @@ ProxySwitch.prototype = {
             c.destroy()
         });
 
-	this.currentProxyFlag = -1;
+    this.currentProxyFlag = -1;
     this.actor.add_actor(this.statusLabel);
-	this.proxy = new Array();
+    this.proxy = new Array();
 
-	this._readProxy();
+    this._readProxy();
     },
 
     _readProxy : function()
-    {	
-	let pfile = this.file;
-	let proxyMenu = this.menu;
+    {   
+    let pfile = this.file;
+    let proxyMenu = this.menu;
 
-	this.menu.removeAll();
+    this.menu.removeAll();
 
-	let p_addSection = new PopupMenu.PopupMenuSection();
-	this.p_label = new St.Entry(
-	{
-		name: "newproxy",
-		hint_text: "proxy-host:port",
-		track_hover: true,
-		can_focus: true
-	});
-	let newproxy = this.p_label.clutter_text;
-	newproxy.connect('key-press-event', function(ob,event)
-	{
-		let symbol = event.get_key_symbol();
-	    	if (symbol == Clutter.Return)
-	    	{
-			proxyMenu.close();
-			let tempstr = ob.get_text().split(':');
-			if(tempstr[1]!=undefined && tempstr[0]!='')
-			{
-				addProxy(tempstr, pfile);
-	    			newproxy.set_text('');
-			}
-			else
-			{
-				newproxy.set_text('Invalid Proxy');
-			}
-		}
-	});
-	p_addSection.actor.add_actor(this.p_label);
-	p_addSection.actor.add_style_class_name("newproxysection");
-	this.menu.addMenuItem(p_addSection);
-	this.Separator = new PopupMenu.PopupSeparatorMenuItem();
-	this.menu.addMenuItem(this.Separator);
+    let p_addSection = new PopupMenu.PopupMenuSection();
+    this.p_label = new St.Entry(
+    {
+        name: "newproxy",
+        hint_text: "proxy-host:port",
+        track_hover: true,
+        can_focus: true
+    });
+    let newproxy = this.p_label.clutter_text;
+    newproxy.connect('key-press-event', function(ob,event)
+    {
+        let symbol = event.get_key_symbol();
+            if (symbol == Clutter.Return)
+            {
+            proxyMenu.close();
+            let tempstr = ob.get_text().split(':');
+            if(tempstr[1]!=undefined && tempstr[0]!='')
+            {
+                addProxy(tempstr, pfile);
+                    newproxy.set_text('');
+            }
+            else
+            {
+                newproxy.set_text('Invalid Proxy');
+            }
+        }
+    });
+    p_addSection.actor.add_actor(this.p_label);
+    p_addSection.actor.add_style_class_name("newproxysection");
+    this.menu.addMenuItem(p_addSection);
+    this.Separator = new PopupMenu.PopupSeparatorMenuItem();
+    this.menu.addMenuItem(this.Separator);
 
-	let proxy_ar = new Array();
-	let p_section = new PopupMenu.PopupMenuSection('ProxyList');
-	if (GLib.file_test(this.file, GLib.FileTest.EXISTS))
-	{
-		let proxyFile = Shell.get_file_contents_utf8_sync(this.file);
-			
-		let proxyLine = proxyFile.toString().split('\n');
-		let nProxy = 0;
-			
-		for (let i=0; i<proxyLine.length; i++)
-		{
-			if (proxyLine[i][0]!='#' && proxyLine[i]!='' && proxyLine[i]!='\n')
-			{
-				let p_port = proxyLine[i].toString().split(':');
-				if(p_port[1]==undefined)
-				{
-					continue;
-				}
-				this.proxy[nProxy]  = new PopupMenu.PopupMenuItem(proxyLine[nProxy]);
-				this.proxy[nProxy].proxyid = p_port[0];
-				this.proxy[nProxy].port = p_port[1];
-				this.proxy[nProxy].idx = nProxy;
-				this.proxy[nProxy].connect('activate', Lang.bind(this, function(nProxy)
-				{
-					this._proxySwitch(nProxy);
-				}));
-				
-				p_section.addMenuItem(this.proxy[i]);		
-				nProxy++;
-			}
-		}
-		this.menu.addMenuItem(p_section);
+    let proxy_ar = new Array();
+    let p_section = new PopupMenu.PopupMenuSection('ProxyList');
+    if (GLib.file_test(this.file, GLib.FileTest.EXISTS))
+    {
+        let proxyFile = Shell.get_file_contents_utf8_sync(this.file);
+            
+        let proxyLine = proxyFile.toString().split('\n');
+        let nProxy = 0;
+            
+        for (let i=0; i<proxyLine.length; i++)
+        {
+            if (proxyLine[i][0]!='#' && proxyLine[i]!='' && proxyLine[i]!='\n')
+            {
+                let p_port = proxyLine[i].toString().split(':');
+                if(p_port[1]==undefined)
+                {
+                    continue;
+                }
+                this.proxy[nProxy]  = new PopupMenu.PopupMenuItem(proxyLine[nProxy]);
+                this.proxy[nProxy].proxyid = p_port[0];
+                this.proxy[nProxy].port = p_port[1];
+                this.proxy[nProxy].idx = nProxy;
+                this.proxy[nProxy].connect('activate', Lang.bind(this, function(nProxy)
+                {
+                    this._proxySwitch(nProxy);
+                }));
+                
+                p_section.addMenuItem(this.proxy[i]);       
+                nProxy++;
+            }
+        }
+        this.menu.addMenuItem(p_section);
 
-	}
-	else 
-	{ 
-		global.logError("Proxifier : Error while reading file : " + this.file); 
-	}
-	
-	this.Separator = new PopupMenu.PopupSeparatorMenuItem();
-	this.menu.addMenuItem(this.Separator);
+    }
+    else 
+    { 
+        global.logError("Proxifier : Error while reading file : " + this.file); 
+    }
+    
+    this.Separator = new PopupMenu.PopupSeparatorMenuItem();
+    this.menu.addMenuItem(this.Separator);
 
-	let p_bottomSection = new PopupMenu.PopupMenuSection('remove');
+    let p_bottomSection = new PopupMenu.PopupMenuSection('remove');
     let removeBox = new St.BoxLayout({
                                          vertical: false,
                                          style_class: 'button-box'
@@ -137,12 +137,12 @@ ProxySwitch.prototype = {
                                 reactive: true
                             });
 
-	let removeProxy = new St.Button({
+    let removeProxy = new St.Button({
                                         style_class: 'buttonStyle',
                                         reactive: true
                                     });
 
-	let clearProxy = new St.Button({
+    let clearProxy = new St.Button({
                                         style_class: 'buttonStyle',
                                         reactive: true
                                    });
@@ -175,118 +175,118 @@ ProxySwitch.prototype = {
     }));
 
     removeProxy.connect('button-press-event', Lang.bind(this, function()
-	{
-		if(this.currentProxyFlag!=-1)
-		{
-			removeSelected(this.proxy[this.currentProxyFlag], pfile);
-			this.currentProxyFlag=-1;
+    {
+        if(this.currentProxyFlag!=-1)
+        {
+            removeSelected(this.proxy[this.currentProxyFlag], pfile);
+            this.currentProxyFlag=-1;
             proxyMenu.close();
-		}
-	}));
-	clearProxy.connect('button-press-event', Lang.bind(this, function()
-	{
-		let modeNone = new Gio.Settings({schema: "org.gnome.system.proxy"});
-		modeNone.set_string('mode', 'none');
-		if(this.currentProxyFlag!=-1)
-		{
-			this.proxy[this.currentProxyFlag].setShowDot(false);
-			this.currentProxyFlag=-1;
-		}
+        }
+    }));
+    clearProxy.connect('button-press-event', Lang.bind(this, function()
+    {
+        let modeNone = new Gio.Settings({schema: "org.gnome.system.proxy"});
+        modeNone.set_string('mode', 'none');
+        if(this.currentProxyFlag!=-1)
+        {
+            this.proxy[this.currentProxyFlag].setShowDot(false);
+            this.currentProxyFlag=-1;
+        }
         proxyMenu.close();
-	}));
+    }));
     removeBox.add(test);
     removeBox.add(removeProxy);
     removeBox.add(clearProxy);
     p_bottomSection.addActor(removeBox);
-	this.menu.addMenuItem(p_bottomSection);
+    this.menu.addMenuItem(p_bottomSection);
 
     },
 
     _proxySwitch : function(item)
-    {	
-	let modeManual = new Gio.Settings({schema: "org.gnome.system.proxy"});
-	modeManual.set_string('mode', 'manual');
+    {   
+    let modeManual = new Gio.Settings({schema: "org.gnome.system.proxy"});
+    modeManual.set_string('mode', 'manual');
 
-	let proxhttp = new Gio.Settings({schema: "org.gnome.system.proxy.http"});
-	let proxhttps = new Gio.Settings({schema: "org.gnome.system.proxy.https"});
-	let proxsocks = new Gio.Settings({schema: "org.gnome.system.proxy.socks"});
-	let proxftp = new Gio.Settings({schema: "org.gnome.system.proxy.ftp"});
-	
-	let retValue = proxhttp.set_string('host', item.proxyid);
-	retValue = retValue && proxhttp.set_int('port', item.port);
-	retValue = retValue && proxhttps.set_string('host', item.proxyid);
-	retValue = retValue && proxhttps.set_int('port', item.port);
-	retValue = retValue && proxsocks.set_string('host', item.proxyid);
-	retValue = retValue && proxsocks.set_int('port', item.port);
-	retValue = retValue && proxftp.set_string('host', item.proxyid);
-	retValue = retValue && proxftp.set_int('port', item.port);
+    let proxhttp = new Gio.Settings({schema: "org.gnome.system.proxy.http"});
+    let proxhttps = new Gio.Settings({schema: "org.gnome.system.proxy.https"});
+    let proxsocks = new Gio.Settings({schema: "org.gnome.system.proxy.socks"});
+    let proxftp = new Gio.Settings({schema: "org.gnome.system.proxy.ftp"});
+    
+    let retValue = proxhttp.set_string('host', item.proxyid);
+    retValue = retValue && proxhttp.set_int('port', item.port);
+    retValue = retValue && proxhttps.set_string('host', item.proxyid);
+    retValue = retValue && proxhttps.set_int('port', item.port);
+    retValue = retValue && proxsocks.set_string('host', item.proxyid);
+    retValue = retValue && proxsocks.set_int('port', item.port);
+    retValue = retValue && proxftp.set_string('host', item.proxyid);
+    retValue = retValue && proxftp.set_int('port', item.port);
 
-	if(!retValue)
-	{
-		debug("Error in updating new proxies");
-	}
+    if(!retValue)
+    {
+        debug("Error in updating new proxies");
+    }
 
-	if(this.currentProxyFlag==-1)
-	{
-		this.proxy[item.idx].setShowDot(true);
-	}
-	else
-	{
-		this.proxy[this.currentProxyFlag].setShowDot(false);
-		this.proxy[item.idx].setShowDot(true);
-	}
-	this.currentProxyFlag=item.idx;
+    if(this.currentProxyFlag==-1)
+    {
+        this.proxy[item.idx].setShowDot(true);
+    }
+    else
+    {
+        this.proxy[this.currentProxyFlag].setShowDot(false);
+        this.proxy[item.idx].setShowDot(true);
+    }
+    this.currentProxyFlag=item.idx;
     },
 
     _enable: function()
     {
-	let fileM = Gio.file_new_for_path(this.file);
-	this.monitor = fileM.monitor(Gio.FileMonitorFlags.NONE, null);
-	this.monitor.connect('changed', Lang.bind(this, this._readProxy));
+    let fileM = Gio.file_new_for_path(this.file);
+    this.monitor = fileM.monitor(Gio.FileMonitorFlags.NONE, null);
+    this.monitor.connect('changed', Lang.bind(this, this._readProxy));
     },
 
     _disable: function()
     {
-	this.monitor.cancel();
+    this.monitor.cancel();
     }
 }
 
 function addProxy(text,file)
 {
-	if (GLib.file_test(file, GLib.FileTest.EXISTS))
-	{
-		let proxyFile = Shell.get_file_contents_utf8_sync(file);
-		proxyFile = proxyFile + text[0] + ":" + text[1] + "\n";
-		
-		let f = Gio.file_new_for_path(file);
-		let out = f.replace(null, false, Gio.FileCreateFlags.NONE, null);
-		Shell.write_string_to_stream (out, proxyFile);
-		out.close(null);
-	}
-	else 
-	{ 
-		global.logError("Proxifier list : Error while reading file : " + file); 
-	}
+    if (GLib.file_test(file, GLib.FileTest.EXISTS))
+    {
+        let proxyFile = Shell.get_file_contents_utf8_sync(file);
+        proxyFile = proxyFile + text[0] + ":" + text[1] + "\n";
+        
+        let f = Gio.file_new_for_path(file);
+        let out = f.replace(null, false, Gio.FileCreateFlags.NONE, null);
+        Shell.write_string_to_stream (out, proxyFile);
+        out.close(null);
+    }
+    else 
+    { 
+        global.logError("Proxifier list : Error while reading file : " + file); 
+    }
 }
 
 function removeSelected(item, file)
 {
-	if(GLib.file_test(file, GLib.FileTest.EXISTS))
-	{
-		let proxyFile = Shell.get_file_contents_utf8_sync(file);
-		let newProxyArray = proxyFile.toString().split('\n');
-		newProxyArray.splice(item.idx, 1);
-		newProxyArray = newProxyArray.join('\n');
+    if(GLib.file_test(file, GLib.FileTest.EXISTS))
+    {
+        let proxyFile = Shell.get_file_contents_utf8_sync(file);
+        let newProxyArray = proxyFile.toString().split('\n');
+        newProxyArray.splice(item.idx, 1);
+        newProxyArray = newProxyArray.join('\n');
 
-		let f = Gio.file_new_for_path(file);
-		let out = f.replace(null, false, Gio.FileCreateFlags.NONE, null);
-		Shell.write_string_to_stream (out, newProxyArray.toString());
-		out.close(null);
-	}
-	else
-	{
-		global.logError("Proxifier list : Error while reading file : " + file); 
-	}
+        let f = Gio.file_new_for_path(file);
+        let out = f.replace(null, false, Gio.FileCreateFlags.NONE, null);
+        Shell.write_string_to_stream (out, newProxyArray.toString());
+        out.close(null);
+    }
+    else
+    {
+        global.logError("Proxifier list : Error while reading file : " + file); 
+    }
 }
 
 function debug(a)
@@ -302,14 +302,14 @@ function init(metadata)
 
 function enable() 
 {
-	p_switch = new ProxySwitch(meta);
-	p_switch._enable();
-	Main.panel.addToStatusArea('proxy', p_switch);
+    p_switch = new ProxySwitch(meta);
+    p_switch._enable();
+    Main.panel.addToStatusArea('proxy', p_switch);
 }
 
 function disable()
 {
-	p_switch._disable();
-	p_switch.destroy();
-	p_switch = null;
+    p_switch._disable();
+    p_switch.destroy();
+    p_switch = null;
 }
