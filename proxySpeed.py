@@ -11,11 +11,12 @@ def switch_proxy(host, port, username=None, password=None):
     modeManual.set_string("mode", "manual")
 
     http_Settings = gio.Settings.new("org.gnome.system.proxy.http")
-    https_Settings = gio.Settings.new("org.gnome.system.proxy.https")
     
     retValue = http_Settings.set_string("host", host)
     retValue = retValue and http_Settings.set_int("port", port)
     
+    https_Settings = gio.Settings.new("org.gnome.system.proxy.https")
+
     retValue = retValue and https_Settings.set_string("host", host)
     retValue = retValue and https_Settings.set_int("port", port)
 
@@ -70,4 +71,3 @@ for p in proxychecked:
 fastest_proxy = fastest_proxy.split(':')
 success = switch_proxy(fastest_proxy[0], int(fastest_proxy[1]))
 print "Switching to " + fastest_proxy[0] + "... " + str(success)
-
