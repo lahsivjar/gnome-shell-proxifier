@@ -48,26 +48,33 @@ class find_proxy(th):
             if retTime:
                 self.time = int(retTime[0])
 
-find_proxy.pingStatus = re.compile(r"(\d) received")
-find_proxy.pingTime = re.compile(r"time (\d*)ms")
-fastest_proxy_time = 9999
+def main():
+    find_proxy.pingStatus = re.compile(r"(\d) received")
+    find_proxy.pingTime = re.compile(r"time (\d*)ms")
+    fastest_proxy_time = 9999
+    fastest_proxy_status = -1
 
-proxychecked = []
+    proxychecked = []
 
-with open(sys.argv[1], "r+") as f_proxy:
-    hosts = f_proxy.read().splitlines()
+    with open(sys.argv[1], "r+") as f_proxy:
+        hosts = f_proxy.read().splitlines()
 
-for host in hosts:
-    active = find_proxy(host)
-    proxychecked.append(active)
-    active.start()
+    for host in hosts:
+        active = find_proxy(host)
+        proxychecked.append(active)
+        active.start()
 
-for p in proxychecked:
-    p.join()
-    if (fastest_proxy_time > p.time):
-        fastest_proxy_time = p.time
-        fastest_proxy = p.host
+    for p in proxychecked:
+        p.join()
+        if (fastest_proxy_time > p.time):
+            fastest_proxy_time = p.time
+            fastest_proxy = p.host
+            fastest_proxy_status = p.status
 
-fastest_proxy = fastest_proxy.split(':')
-success = switch_proxy(fastest_proxy[0], int(fastest_proxy[1]))
-print "Switching to " + fastest_proxy[0] + "... " + str(success)
+    fastest_proxy = fastest_proxy.split(':')
+    if fastest_proxy_status != 0:
+        success = switch_proxy(fastest_proxy[0], int(fastest_proxy[1]))
+        print "Switching to " + fastest_proxy[0] + "... " + str(success)
+
+if __name__=="__main__":
+    main()
